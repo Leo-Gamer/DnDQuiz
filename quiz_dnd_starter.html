@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>黑杖塔：新生人格試煉 2.5</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --parchment-light: #fdf6e3;
+            --parchment-dark: #eee8d5;
+            --ink-primary: #261b13;
+            --accent-brown: #856743;
+            --burn-orange: #ff4500;
+            --magic-gold: #b58900;
+        }
+
+        body {
+            font-family: 'Spectral', serif;
+            margin: 0; padding: 2rem 1rem;
+            background: #0f0f0f;
+            color: var(--ink-primary);
+            overflow-x: hidden;
+        }
+
+        .parchment-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--parchment-dark);
+            background-image: url('https://www.transparenttextures.com/patterns/p6.png');
+            padding: 3rem;
+            border: 1px solid var(--accent-brown);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7), inset 0 0 100px rgba(133, 103, 67, 0.2);
+            position: relative;
+            min-height: 500px;
+        }
+
+        /* 燒蝕動畫 */
+        .burning { animation: burnAway 0.8s forwards; }
+        @keyframes burnAway {
+            0% { transform: scale(1); filter: brightness(1); opacity: 1; }
+            40% { filter: brightness(2) sepia(1) saturate(3) drop-shadow(0 0 15px var(--burn-orange)); }
+            100% { transform: scale(1.05); filter: brightness(0); opacity: 0; }
+        }
+
+        .hidden { display: none !important; }
+        h1, h2 { font-family: 'Cinzel Decorative', cursive; text-align: center; }
+        h1 { font-size: 1.8rem; border-bottom: 2px solid var(--accent-brown); margin-bottom: 20px; }
+
+        .input-group { text-align: center; margin: 3rem 0; }
+        input[type="text"] {
+            background: transparent; border: none; border-bottom: 2px solid var(--ink-primary);
+            font-size: 1.4rem; text-align: center; width: 85%; outline: none; padding: 10px; color: var(--ink-primary);
+        }
+
+        .btn-magic {
+            display: block; width: 100%; padding: 1.2rem; background: var(--ink-primary);
+            color: var(--parchment-light); font-family: 'Cinzel Decorative', cursive;
+            border: none; cursor: pointer; font-size: 1.1rem; margin-top: 20px; transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .btn-magic:hover { background: var(--accent-brown); transform: translateY(-2px); }
+
+        .btn-finalize {
+            background: #4a0404; /* 深紅色代表最終決定 */
+            border: 2px solid var(--magic-gold);
+            font-size: 1.4rem;
+            margin-top: 40px;
+        }
+
+        .option-label {
+            display: flex; align-items: center; background: rgba(0,0,0,0.04);
+            margin: 12px 0; padding: 15px; cursor: pointer; border-radius: 6px; border: 1px solid transparent;
+        }
+        .option-label:hover { background: rgba(133, 103, 67, 0.1); border: 1px solid var(--accent-brown); }
+        input[type="radio"] { margin-right: 15px; transform: scale(1.3); }
+
+        .result-card { background: white; padding: 2rem; border: 3px double var(--accent-brown); text-align: center; }
+        .score-list { font-size: 0.9rem; text-align: left; background: #f4f4f4; padding: 15px; margin-top: 15px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="parchment-container" id="mainBoard">
+    
+    <div id="stage-entry">
+        <h1>黑杖塔：新生試煉</h1>
+        <div class="input-group">
+            <p>學徒，在開啟試煉卷軸前，請簽下你的真名：</p>
+            <input type="text" id="playerName" placeholder="書寫此處..." autocomplete="off">
+            <p style="color: #8b0000; font-style: italic; margin-top: 20px; font-weight: bold;">「請屏除雜念，傾聽靈魂深處的聲音。」</p>
+            <button class="btn-magic" onclick="startQuiz()">開啟試煉卷軸</button>
+        </div>
+    </div>
+
+    <div id="stage-quiz" class="hidden">
+        <p id="question-counter" style="text-align: right; font-weight: bold; color: var(--accent-brown);"></p>
+        <h2 id="question-text" style="font-size: 1.25rem; margin: 1.5rem 0;"></h2>
+        <div id="options-container"></div>
+        <button class="btn-magic" id="nextBtn" onclick="processNext()">注入魔力 · 下一題</button>
+    </div>
+
+    <div id="stage-finalize" class="hidden" style="text-align: center;">
+        <h1>試煉終了</h1>
+        <p style="margin: 2rem 0; font-size: 1.1rem;">所有的回答已刻入靈魂卷軸。<br>準備好接受你的命運了嗎？</p>
+        <button class="btn-magic btn-finalize" onclick="finalizeRitual()">獲取鑑定結果 & 傳送卷軸</button>
+    </div>
+
+    <div id="stage-result" class="hidden">
+        <h1>鑑定結果</h1>
+        <div id="result-content"></div>
+        <p style="text-align: center; margin-top: 20px; color: var(--magic-gold); font-weight: bold;">
+            🪄 訊息已由「傳送術」送往魔導師信箱...
+        </p>
+        <button class="btn-magic" onclick="location.reload()">重新進行鑑定</button>
+    </div>
+
+</div>
+
+<script>
+    const questions = [
+        { q: "在一場混亂的伏擊中，你下意識尋找的位置是？", options: [
+            { t: "站在受傷隊友旁，隨時準備施救", v: "A" },
+            { t: "滑向陰影或高處，尋找敵方死角", v: "B" },
+            { t: "衝向最前方，迫使敵人將目標鎖定你", v: "C" },
+            { t: "保持安全距離，準備大型干擾魔法", v: "D" }
+        ]},
+        { q: "面對一道無法開啟的魔法密門，你會？", options: [
+            { t: "解析符文迴路，嘗試理性拆解魔法", v: "A" },
+            { t: "祈求神性或自然的徵兆來揭示路徑", v: "B" },
+            { t: "使用精密工具或強酸進行技術破壞", v: "C" },
+            { t: "測試大門結構，嘗試用蠻力強行破開", v: "D" }
+        ]},
+        { q: "貪婪商人握有情報卻索要天價，你會？", options: [
+            { t: "曉以大義，嘗試喚醒他的榮譽感", v: "A" },
+            { t: "趁他不注意潛入辦公室「借用」情報", v: "B" },
+            { t: "展露武力或氣場，直接逼他就範", v: "C" },
+            { t: "冷靜地交易，甚至以他的把柄作為談判籌碼", v: "D" }
+        ]},
+        { q: "在夜宿野外的營火旁，你通常在做什麼？", options: [
+            { t: "磨練武器或研究刻在裝備上的符文", v: "A" },
+            { t: "觀察星象變化或與附近的生物低語", v: "B" },
+            { t: "改造你的背包零件，試圖做些小發明", v: "C" },
+            { t: "與隊友談天說笑，或在安靜處禱告", v: "D" }
+        ]},
+        { q: "你申請進入黑杖塔最核心的動機是？", options: [
+            { t: "為了保護那些弱小且無助的人", v: "A" },
+            { t: "為了探索被禁止或未知的科學與知識", v: "B" },
+            { t: "為了學會控制我不穩定的原始魔力", v: "C" },
+            { t: "為了在歷史中留下屬於我的英雄事蹟", v: "D" }
+        ]},
+        { q: "當計畫徹底失敗時，你的第一直覺反應是？", options: [
+            { t: "怒吼一聲，並立刻尋找下一個打擊目標", v: "A" },
+            { t: "自責但保持溫柔，優先治療受傷的同伴", v: "B" },
+            { t: "露出一抹苦笑，快速隱入後方啟動備案", v: "C" },
+            { t: "迅速在腦中分析失敗數據，避免下次出錯", v: "D" }
+        ]},
+        { q: "你的行囊中絕對不能缺少的物品是？", options: [
+            { t: "代表家訓的護身符或一面堅固的盾牌", v: "A" },
+            { t: "一套精密工具組或奇怪的藥劑瓶", v: "B" },
+            { t: "一疊星圖、蠟燭或神聖的香油", v: "C" },
+            { t: "幾把方便隱藏的匕首或骰子遊戲", v: "D" }
+        ]},
+        { q: "隊伍中出現意見嚴重分歧時，你會如何處理？", options: [
+            { t: "作為仲裁者，尋求最符合道德的折衷點", v: "A" },
+            { t: "不屑爭論，直接去做你認為最有效率的事", v: "B" },
+            { t: "用巨大的聲量或氣場壓制混亂，強行推進", v: "C" },
+            { t: "冷眼旁觀，並隨時準備應對爭論引發的意外", v: "D" }
+        ]},
+        { q: "你希望在冒險結束後，世人如何記得你？", options: [
+            { t: "一位無私的守護者與光芒的傳遞者", v: "A" },
+            { t: "一位解開世界終極奧秘的天才大師", v: "B" },
+            { t: "一位無人能敵、充滿野性的傳奇戰士", v: "C" },
+            { t: "一位能在最絕望時刻反轉局勢的影子", v: "D" }
+        ]}
+    ];
+
+    const weightMatrix = {
+        0: { A: { cleric: 5, paladin: 3 }, B: { trickster: 5 }, C: { barbarian: 5, runeknight: 3 }, D: { starsdruid: 4, artificer: 2 } },
+        1: { A: { runeknight: 4, artificer: 3 }, B: { cleric: 4, starsdruid: 5 }, C: { artificer: 5, trickster: 2 }, D: { barbarian: 4, paladin: 3 } },
+        2: { A: { cleric: 3, paladin: 5 }, B: { trickster: 5 }, C: { barbarian: 5, runeknight: 2 }, D: { artificer: 4, starsdruid: 4 } },
+        3: { A: { runeknight: 5, paladin: 2 }, B: { starsdruid: 5, cleric: 2 }, C: { artificer: 5 }, D: { cleric: 4, trickster: 3 } },
+        4: { A: { paladin: 5, cleric: 4 }, B: { artificer: 5, starsdruid: 3 }, C: { barbarian: 5, runeknight: 2 }, D: { trickster: 4, runeknight: 3 } },
+        5: { A: { barbarian: 5, runeknight: 2 }, B: { cleric: 5, paladin: 3 }, C: { trickster: 5, starsdruid: 2 }, D: { artificer: 5, starsdruid: 3 } },
+        6: { A: { paladin: 4, runeknight: 4 }, B: { artificer: 5 }, C: { starsdruid: 5, cleric: 4 }, D: { trickster: 5 } },
+        7: { A: { cleric: 4, paladin: 4 }, B: { artificer: 5, starsdruid: 3 }, C: { barbarian: 5, runeknight: 2 }, D: { trickster: 4 } },
+        8: { A: { cleric: 5, paladin: 5 }, B: { artificer: 5, starsdruid: 5 }, C: { barbarian: 5, runeknight: 4 }, D: { trickster: 5 } }
+    };
+
+    const classNames = { cleric: "生命領域牧師", trickster: "奧術詭影盜賊", barbarian: "狂野魔法野蠻人", paladin: "聖騎士", runeknight: "符文騎士", artificer: "工匠 (Artificer)", starsdruid: "星環德魯伊" };
+
+    let currentStep = 0;
+    let scores = { cleric: 0, trickster: 0, barbarian: 0, paladin: 0, runeknight: 0, artificer: 0, starsdruid: 0 };
+    let pName = "";
+
+    function startQuiz() {
+        pName = document.getElementById('playerName').value;
+        if (!pName) { alert("學徒，請簽下你的真名。"); return; }
+        document.getElementById('stage-entry').classList.add('hidden');
+        document.getElementById('stage-quiz').classList.remove('hidden');
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const qData = questions[currentStep];
+        document.getElementById('question-counter').innerText = `卷軸進度：${currentStep + 1} / 9`;
+        document.getElementById('question-text').innerText = qData.q;
+        const optContainer = document.getElementById('options-container');
+        optContainer.innerHTML = "";
+        qData.options.forEach(opt => {
+            const label = document.createElement('label');
+            label.className = 'option-label';
+            label.innerHTML = `<input type="radio" name="q" value="${opt.v}"> <span>${opt.t}</span>`;
+            optContainer.appendChild(label);
+        });
+    }
+
+    function processNext() {
+        const selected = document.querySelector('input[name="q"]:checked');
+        if (!selected) { alert("請傾聽內心並做出選擇。"); return; }
+        
+        const weights = weightMatrix[currentStep][selected.value];
+        for (let cls in weights) scores[cls] += weights[cls];
+
+        const board = document.getElementById('mainBoard');
+        board.classList.add('burning');
+
+        setTimeout(() => {
+            currentStep++;
+            board.classList.remove('burning');
+            if (currentStep < questions.length) {
+                renderQuestion();
+                window.scrollTo(0, 0);
+            } else {
+                document.getElementById('stage-quiz').classList.add('hidden');
+                document.getElementById('stage-finalize').classList.remove('hidden');
+            }
+        }, 800);
+    }
+
+async function finalizeRitual() {
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const topClass = classNames[sorted[0][0]];
+
+  document.getElementById('stage-finalize').classList.add('hidden');
+  document.getElementById('stage-result').classList.remove('hidden');
+
+  let report = `學徒: ${pName}\n鑑定結果: ${topClass}\n\n分數細節:\n`;
+  sorted.forEach(([k,v]) => { report += `- ${classNames[k]}: ${v}\n`; });
+
+  document.getElementById('result-content').innerHTML = `<h2>【 ${topClass} 】</h2><pre>${report}</pre>`;
+
+  const copyArea = document.getElementById('copyArea');
+  if (copyArea) copyArea.value = report;
+
+  const backupBox = document.getElementById('backup-box');
+  if (backupBox) backupBox.style.display = "none";
+
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzgP_MdEa15mftQDmhKrMIoM9LAY4lhcPr5ySdea4hNI7gsnvMsP5yI6VWW6Bbfr6ZiZw/exec";
+
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        subject: "[試煉報告] " + pName,
+        body: report
+      })
+    });
+
+    // 盡力讀回應（讀不到也不當作失敗）
+    try {
+      const text = await res.text();
+      console.log("Email response:", text);
+    } catch (_) {}
+
+    console.log("Email sent (silent).");
+  } catch (err) {
+    console.error("Silent email failed:", err);
+    if (backupBox) backupBox.style.display = "block"; // 只有失敗才顯示備援
+  }
+}
+
+</script>
+
+</body>
+</html>
