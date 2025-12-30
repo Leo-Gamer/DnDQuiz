@@ -259,36 +259,31 @@ async function finalizeRitual() {
 
   const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwHpGEQxhK7qsR3v0PcPBc-nv7u4Rl_AsUTw4fTm12HGgQzq0n4WUWn5Su7LgssZFotmw/exec";
 
-  try {
-    const res = await fetch(WEBAPP_URL, {
-      method: "POST",
-      mode: "no-cors", // ✅ 不讀回應，避免 CORS 阻擋
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        subject: "[試煉報告] " + pName,
-        body: report
-      })
-    });
+try {
+  await fetch(WEBAPP_URL, {
+    method: "POST",
+    mode: "no-cors", // 不讀回應，避免 CORS
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({
+      subject: "[試煉報告] " + pName,
+      body: report
+    })
+  });
 
-    console.log("Email request sent (no-cors).");
+  console.log("Email request sent (no-cors).");
+  // ✅ no-cors 下無法確認是否真的寄出，只能確認「已送出請求」
+} catch (err) {
+  console.error("Silent email failed:", err);
+  if (backupBox) backupBox.style.display = "block";
+}
 
-    // 盡力讀回應（讀不到也不當作失敗）
-    try {
-      const text = await res.text();
-      console.log("Email response:", text);
-    } catch (_) {}
-
-    console.log("Email sent (silent).");
-  } catch (err) {
-    console.error("Silent email failed:", err);
-    if (backupBox) backupBox.style.display = "block"; // 只有失敗才顯示備援
-  }
 }
 
 </script>
 
 </body>
 </html>
+
 
 
 
