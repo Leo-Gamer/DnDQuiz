@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8" />
-    <title>黑杖塔：新生人格試煉 2.5</title>
+    <title>灰佛爾魔法學院：新生試煉 2.5</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
@@ -85,10 +85,10 @@
 <div class="parchment-container" id="mainBoard">
     
     <div id="stage-entry">
-        <h1>黑杖塔：新生試煉</h1>
+        <h1>灰佛爾魔法學院：新生試煉</h1>
         <div class="input-group">
             <p>學徒，在開啟試煉卷軸前，請簽下你的真名：</p>
-            <input type="text" id="playerName" placeholder="書寫此處..." autocomplete="off">
+            <input type="text" id="playerName" placeholder="書寫此處玩家昵稱（要讓Leo知道你是誰哦）..." autocomplete="off">
             <p style="color: #8b0000; font-style: italic; margin-top: 20px; font-weight: bold;">「請屏除雜念，傾聽靈魂深處的聲音。」</p>
             <button class="btn-magic" onclick="startQuiz()">開啟試煉卷軸</button>
         </div>
@@ -111,7 +111,7 @@
         <h1>鑑定結果</h1>
         <div id="result-content"></div>
         <p style="text-align: center; margin-top: 20px; color: var(--magic-gold); font-weight: bold;">
-            🪄 訊息已由「傳送術」送往魔導師信箱...
+            訊息已由「傳送術」送往魔導師信箱...
         </p>
         <button class="btn-magic" onclick="location.reload()">重新進行鑑定</button>
     </div>
@@ -144,7 +144,7 @@
             { t: "改造你的背包零件，試圖做些小發明", v: "C" },
             { t: "與隊友談天說笑，或在安靜處禱告", v: "D" }
         ]},
-        { q: "你申請進入黑杖塔最核心的動機是？", options: [
+        { q: "你申請進入灰佛爾魔法學院最核心的動機是？", options: [
             { t: "為了保護那些弱小且無助的人", v: "A" },
             { t: "為了探索被禁止或未知的科學與知識", v: "B" },
             { t: "為了學會控制我不穩定的原始魔力", v: "C" },
@@ -286,4 +286,5 @@ async function finalizeRitual() {
 
 </body>
 </html>
+
 
